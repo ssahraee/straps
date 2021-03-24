@@ -38,6 +38,12 @@ to see all options.
 
 The script TODO generates all figures of the paper.
 
+**Cache:**
+
+If the environment variable `STRAPS_CACHE_DIR` is defined, it will be used as
+the path for a cache directory. This cache stores PDT computation resuts across
+executions (and also during one execution).
+
 **Custom composition:**
 
 ```python

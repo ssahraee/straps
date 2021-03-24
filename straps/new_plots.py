@@ -19,6 +19,7 @@ from matplotlib import pyplot as plt
 
 from . import secfig
 
+
 def plot_subplot(fns, **kwargs):
     nx = len(fns)
     ny = len(fns[0])
@@ -28,89 +29,116 @@ def plot_subplot(fns, **kwargs):
                 fn, supp_args = fn
             else:
                 supp_args = dict()
-            plt.subplot(nx, ny, ny*i+j+1)
+            plt.subplot(nx, ny, ny * i + j + 1)
             secfig.plot_fig(**secfig.data_fig(fn, **kwargs, **supp_args))
+
 
 def plot_subplot_title(title, fns, **kwargs):
     plt.figure(title)
     plt.title(title)
     plot_subplot(fns, **kwargs)
 
+
 def main():
     if False:
-        plot_subplot_title('ISW',
-                [ [ ('isw', {'use_copy': False, 'cum_tr': False}),
-                        ('isw', {'use_copy': False, 'cum_tr': True}), ],
-                    #[     ('isw', {'use_copy': True, 'cum_tr': False}),
-                    #    ('isw', {'use_copy': True, 'cum_tr': True}), ],
-                    ],
-                ds=range(1,6),
-                suff_thresh=100,
-                n_s_max=10**6
-                )
-
-    # ok, to plot
-    if False:
-        plot_subplot_title('ISW', [['sh-add', 'isw'], ['isw_y', 'isw_xy']],
-                )
-    # ok, to plot
-    if False:
-        plot_subplot_title('ISW_cube', [['isw', 'cube_isw_noref'], ['cube_isw_simpleref', 'cube_isw_optref']])
-
-    # old
-    if False:
-        plot_subplot_title('direct_vs_comp cube',
-                [['cube_isw_noref', 'cube_isw_simpleref', 'cube_isw_optref'],
-                    ['int_cube_isw_noref', 'int_cube_isw_simpleref', 'int_cube_isw_optref']],
-                ds=range(1,5),
-                n_s_max=10**7,
-                suff_thresh=1000,
-                )
-    # ok, to plot
-    if False:
-        plot_subplot_title('direct_vs_comp cube',
-                [['cube_isw_optref', 'int_cube_isw_optref']],
-                ds=list(range(1, 6)),
-                n_s_max=2*10**6,
-                suff_thresh=1000,
-                )
-    # ok, to plot
-    if True:
-        plot_subplot_title('aes_sbox', [['isw', 'aes_sbox_noref'],
-            ['aes_sbox_simpleref', 'aes_sbox']],
-            n_s_max=10**8,
-            ds=list(range(1,7))
-            )
-
-    # ok, to plot
-    if False:
-        plot_subplot_title('isw_ns2', [
+        plot_subplot_title(
+            "ISW",
             [
-                ('isw', {'n_s_max': 10**3, 'suff_thresh': 1000}),
-                ('isw', {'n_s_max': 10**5, 'suff_thresh': 1000}),
-                ('isw', {'n_s_max': 10**7, 'suff_thresh': 1000}),
+                [
+                    ("isw", {"use_copy": False, "cum_tr": False}),
+                    ("isw", {"use_copy": False, "cum_tr": True}),
                 ],
+                # [     ('isw', {'use_copy': True, 'cum_tr': False}),
+                #    ('isw', {'use_copy': True, 'cum_tr': True}), ],
             ],
-            ds=range(1,7),
+            ds=range(1, 6),
+            suff_thresh=100,
+            n_s_max=10 ** 6,
+        )
+
+    # ok, to plot
+    if False:
+        plot_subplot_title(
+            "ISW",
+            [["sh-add", "isw"], ["isw_y", "isw_xy"]],
         )
     # ok, to plot
     if False:
-        plot_subplot_title('isw_ns2', [
+        plot_subplot_title(
+            "ISW_cube",
+            [["isw", "cube_isw_noref"], ["cube_isw_simpleref", "cube_isw_optref"]],
+        )
+
+    # old
+    if False:
+        plot_subplot_title(
+            "direct_vs_comp cube",
             [
-                ('isw', {'n_s_max': 10**7, 'suff_thresh': 10}),
-                ('isw', {'n_s_max': 10**7, 'suff_thresh': 100}),
-                ('isw', {'n_s_max': 10**7, 'suff_thresh': 1000}),
+                ["cube_isw_noref", "cube_isw_simpleref", "cube_isw_optref"],
+                ["int_cube_isw_noref", "int_cube_isw_simpleref", "int_cube_isw_optref"],
+            ],
+            ds=range(1, 5),
+            n_s_max=10 ** 7,
+            suff_thresh=1000,
+        )
+    # ok, to plot
+    if False:
+        plot_subplot_title(
+            "direct_vs_comp cube",
+            [["cube_isw_optref", "int_cube_isw_optref"]],
+            ds=list(range(1, 6)),
+            n_s_max=2 * 10 ** 6,
+            suff_thresh=1000,
+        )
+    # ok, to plot
+    if True:
+        plot_subplot_title(
+            "aes_sbox",
+            [["isw", "aes_sbox_noref"], ["aes_sbox_simpleref", "aes_sbox"]],
+            n_s_max=10 ** 8,
+            ds=list(range(1, 7)),
+        )
+
+    # ok, to plot
+    if False:
+        plot_subplot_title(
+            "isw_ns2",
+            [
+                [
+                    ("isw", {"n_s_max": 10 ** 3, "suff_thresh": 1000}),
+                    ("isw", {"n_s_max": 10 ** 5, "suff_thresh": 1000}),
+                    ("isw", {"n_s_max": 10 ** 7, "suff_thresh": 1000}),
                 ],
             ],
-            ds=range(1,7),
+            ds=range(1, 7),
+        )
+    # ok, to plot
+    if False:
+        plot_subplot_title(
+            "isw_ns2",
+            [
+                [
+                    ("isw", {"n_s_max": 10 ** 7, "suff_thresh": 10}),
+                    ("isw", {"n_s_max": 10 ** 7, "suff_thresh": 100}),
+                    ("isw", {"n_s_max": 10 ** 7, "suff_thresh": 1000}),
+                ],
+            ],
+            ds=range(1, 7),
         )
 
     # ongoing...
     if False:
-        plot_subplot_title('isw_ns3', [ [ ('isw', {'n_s_max': 10**8, 'suff_thresh': 1000}), ], ],
+        plot_subplot_title(
+            "isw_ns3",
+            [
+                [
+                    ("isw", {"n_s_max": 10 ** 8, "suff_thresh": 1000}),
+                ],
+            ],
             ds=[6],
         )
     plt.show()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
