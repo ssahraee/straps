@@ -84,3 +84,80 @@ def data_fig(fn, ds=None, err=default_err, p=default_p,
         'use_copy': use_copy,
         'cum_tr': cum_tr,
         }
+
+def main():
+    import argparse
+    supported_circuits =  ", ".join(eval_circs.specialized_circuits.keys())
+    parser = argparse.ArgumentParser(description='Plot a simple STRAPS result.')
+    parser.add_argument(
+            "circuit",
+            type=str,
+            help="The circuit to analyze. Possible options: " +
+            supported_circuits
+            )
+    parser.add_argument(
+            "-d",
+            "--nshares",
+            type=str,
+            default="1,2,3,4",
+            help="Number of shares to consider. Default: 1,2,3,4."
+            )
+    parser.add_argument(
+            "--nmax",
+            type=int,
+            default=10**5,
+            help="N_max parameter (see the paper). Default: 10^5."
+            )
+    parser.add_argument(
+            "--nt",
+            type=int,
+            default=10**3,
+            help="N_t parameter (see the paper). Default: 1000."
+            )
+    parser.add_argument(
+            "--err",
+            type=float,
+            default=1e-6,
+            help="Confidence level of the bounds. Default: 1e-6."
+            )
+    parser.add_argument(
+            "--pmin",
+            type=float,
+            default=1e-4,
+            help="Minimum value for the p parameter of the random probing model. Default: 1e-4."
+            )
+    parser.add_argument(
+            "--pmax",
+            type=float,
+            default=1e0,
+            help="Maximum value for the p parameter of the random probing model. Default: 1."
+            )
+    parser.add_argument(
+            "--np",
+            type=int,
+            default=40,
+            help="Number of (log-spaced) values for the p parameter. Default: 40."
+            )
+
+    args = parser.parse_args()
+
+    fn = args.circuit
+    if fn not in eval_circs.specialized_circuits:
+        print("Error: circuit {} not supported".format(fn))
+        print("Supported circuits:", supported_circuits)
+        return
+    ds = eval("("+args.nshares+")")
+    if isinstance(ds, int):
+        ds = (ds,)
+    err = args.err
+    p = np.logspace(np.log10(args.pmin), np.log10(args.pmax), args.np)
+    n_s_max = args.nmax
+    suff_thresh = args.nt
+
+    plot_fig(**data_fig(fn, ds, err, p, n_s_max, suff_thresh))
+    plt.show()
+
+
+if __name__ == "__main__":
+    main()
+

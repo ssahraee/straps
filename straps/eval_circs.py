@@ -27,23 +27,44 @@ from . import utils
 ## Generic circuit builders
 
 def eval_aes_sbox(p, pdts, ref=True, d=2, ref_name='optref'):
+    """AES S-box in GF(256). See paper for structure."""
+    # Create the Shared PD with one output sharing
     x = ShLd(['out'], d)
+    # We build the circuit from the output: we start from the output sharing,
+    # create the gadget that generates it, then work backwards until we reach
+    # the intput.
+
+    # Apply the output multiplication of the AES S-box
+    # out = m3i1 * m3i2 (with ISW multiplication)
     x.op('out', ['m3i1', 'm3i2'], pdts['ISW'])
+    # Another multiplication
+    # m3i1 = m2i1 * m2i2
     x.op('m3i1', ['m2i1', 'm2i2'], pdts['ISW'])
+    # Let m2i2 <- m2i2**(2**4) (we can override variables)
     for _ in range(4):
         x.op('m2i2', ['m2i2'], pdts['square'])
+    # m2i2 = m1i1 * m1i2
     x.op('m2i2', ['m1i1', 'm1i2'], pdts['ISW'])
+    # Copy gate: m2i1 <- t0 and m1i1 <- t0.
     x.split_sharing('t0', 'm2i1', 'm1i1')
+    # Refresh: t0 <- Refresh(t0)
     if ref:
         x.op('t0', ['t0'], pdts[ref_name])
+    # t0 <- t0**(2**2)
     for _ in range(2):
         x.op('t0', ['t0'], pdts['square'])
+    # Copy gate: t0 <- m0o and m1i2 <- m0o
     x.split_sharing('m0o', 't0', 'm1i2')
+    # m0o = m0i1 * m0i2
     x.op('m0o', ['m0i1', 'm0i2'], pdts['ISW'])
+    # Copy gate: m0i2 <- t1 and m3i2 <- t1
     x.split_sharing('t1', 'm0i2', 'm3i2')
+    # Refresh: t1 <- Refresh(t1)
     if ref:
         x.op('t1', ['t1'], pdts[ref_name])
+    # t1 <- t1**2
     x.op('t1', ['t1'], pdts['square'])
+    # Copy gate: m0i1 <- in and t1 <- in
     x.split_sharing('in', 'm0i1', 't1')
     return x.security('in')
 
@@ -52,7 +73,7 @@ def eval_x_cube(p, pdts, ref=True, d=2, ref_name='optref'):
     x.op('out', ['t0', 't1'], pdts['ISW'])
     if ref:
         x.op('t0', ['t0'], pdts[ref_name])
-    x.square_op('t0', p)
+    x.op('t0', ['t0'], pdts['square'])
     x.split_sharing('in', 't0', 't1')
     return x.security('in')
 
