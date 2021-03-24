@@ -16,10 +16,15 @@
 
 
 import math
+import os
 
 from matplotlib import pyplot as plt
 import numpy as np
-import tikzplotlib
+
+tikzplot = os.environ.get("STRAPS_TIKZPLOT") == "1"
+
+if tikzplot:
+    import tikzplotlib
 
 from . import secfig
 
@@ -49,15 +54,16 @@ def plot_save(
             fn, ds=ds, n_s_max=n_s_max, suff_thresh=suff_thresh, err=err, p=p
         )
     )
-    tikzplotlib.save(
-        filepath="figs/{}.tex".format(fname),
-        figure=fig,
-        axis_height="\\figureheight",
-        axis_width="\\figurewidth",
-        externalize_tables=True,
-        override_externals=True,
-        tex_relative_path_to_data="figs",
-    )
+    if tikzplot:
+        tikzplotlib.save(
+            filepath="figs/{}.tex".format(fname),
+            figure=fig,
+            axis_height="\\figureheight",
+            axis_width="\\figurewidth",
+            externalize_tables=True,
+            override_externals=True,
+            tex_relative_path_to_data="figs",
+        )
     i += 1
 
 

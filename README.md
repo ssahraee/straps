@@ -24,7 +24,7 @@ welcome), but you can build it for yourself (see below).
 
 ## Usage
 
-**Simple demo:**
+### Simple demo
 
 ```
 python -m straps.secfig isw
@@ -36,15 +36,18 @@ python -m straps.secfig --help
 ```
 to see all options.
 
-The script TODO generates all figures of the paper.
+Running `python -m straps.paper_plots` generates all figures of the paper (this
+might take dozens of hours on a beefy machine).
 
-**Cache:**
+### Cache
 
 If the environment variable `STRAPS_CACHE_DIR` is defined, it will be used as
 the path for a cache directory. This cache stores PDT computation resuts across
-executions (and also during one execution).
+executions, and also during one execution.
+It is therefore **strongly recommended** to set this variable, as it might lead
+to large runtime reductions, even on a single run.
 
-**Custom composition:**
+### Custom composition
 
 ```python
 from straps import eval_circs, sh_ldt, ldt_sampling, secfig
@@ -93,7 +96,7 @@ plt.show()
 
 See `straps/eval_circs.py` for more examples (such as the AES S-box).
 
-**Custom gadget:**
+### Custom gadget
 
 Your can also design your own gadget.
 ```python
