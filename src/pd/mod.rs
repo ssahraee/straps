@@ -24,5 +24,5 @@ mod rpm_sim;
 mod utils;
 
 pub(crate) use gadget::SimGadget;
-pub(crate) use pdt::LeakageDistribution;
+pub(crate) use pdt::ProbeDistribution;
 pub(crate) use rpm_sim::{CntSim, CntSimSt, GPdt, SampleRes, INPUT_AXIS};

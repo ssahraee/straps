@@ -47,8 +47,8 @@ py_type_wrapper!(pd::GPdt, PyGPdt);
 py_type_wrapper!(ndarray::Array2<f64>, PyPDT);
 py_type_wrapper!(circuit::SlSharedCircuit, PyCompGraph);
 py_type_wrapper!(
-    std::sync::RwLock<pd::LeakageDistribution<String>>,
-    PyLeakageDistribution
+    std::sync::RwLock<pd::ProbeDistribution<String>>,
+    PyProbeDistribution
 );
 
 #[pymodule]
@@ -56,7 +56,7 @@ fn _straps_ext(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<PyCompGraph>()?;
     m.add_class::<PyCntSim>()?;
     m.add_class::<PyCntSimSt>()?;
-    m.add_class::<PyLeakageDistribution>()?;
+    m.add_class::<PyProbeDistribution>()?;
     m.add_class::<PyPDT>()?;
     m.add_class::<PyGPdt>()?;
     Ok(())
@@ -238,23 +238,23 @@ impl PyCntSimSt {
     }
 }
 
-impl PyLeakageDistribution {
-    fn from_inner(inner: pd::LeakageDistribution<String>) -> Self {
+impl PyProbeDistribution {
+    fn from_inner(inner: pd::ProbeDistribution<String>) -> Self {
         std::sync::RwLock::new(inner).into()
     }
-    fn read(&self) -> std::sync::RwLockReadGuard<'_, pd::LeakageDistribution<String>> {
+    fn read(&self) -> std::sync::RwLockReadGuard<'_, pd::ProbeDistribution<String>> {
         self.inner.read().unwrap()
     }
-    fn write(&self) -> std::sync::RwLockWriteGuard<'_, pd::LeakageDistribution<String>> {
+    fn write(&self) -> std::sync::RwLockWriteGuard<'_, pd::ProbeDistribution<String>> {
         self.inner.write().unwrap()
     }
 }
 
 #[pymethods]
-impl PyLeakageDistribution {
+impl PyProbeDistribution {
     #[new]
     fn new(wires: Vec<String>) -> Self {
-        Self::from_inner(pd::LeakageDistribution::from_wires(wires))
+        Self::from_inner(pd::ProbeDistribution::from_wires(wires))
     }
     fn leak_wire<'p>(&mut self, py: Python<'p>, var: String, p: f64) -> Self {
         py.allow_threads(|| Self::from_inner(self.write().leak_wire(var, p)))

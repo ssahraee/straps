@@ -18,7 +18,7 @@ use std::collections::HashMap;
 use std::hash::Hash;
 
 #[derive(Clone)]
-pub struct LeakageDistribution<W: Clone + Eq + Hash> {
+pub struct ProbeDistribution<W: Clone + Eq + Hash> {
     n: u32,
     pub wires: Vec<W>,
     // reverse map of `wires`
@@ -26,7 +26,7 @@ pub struct LeakageDistribution<W: Clone + Eq + Hash> {
     pub distr: ndarray::Array1<f64>,
 }
 
-impl<W: Clone + Eq + Hash> LeakageDistribution<W> {
+impl<W: Clone + Eq + Hash> ProbeDistribution<W> {
     pub fn from_wires(wires: Vec<W>) -> Self {
         let mut distr = ndarray::Array1::zeros(1 << wires.len());
         distr[0] = 1.0;
