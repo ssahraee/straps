@@ -26,8 +26,8 @@ pyo3 = {version="0.13",features=["extension-module"]}
 numpy = "0.13"
 hytra = "0.1.2"
 crossbeam-utils = "0.8.3"
-firestorm = { version="0.4", features=["enable_system_time"] }
-#firestorm = { version="0.4" }
+#firestorm = { version="0.4", features=["enable_system_time"] }
+firestorm = { version="0.4" }
 
 [build-dependencies]
 cc = "1.0"

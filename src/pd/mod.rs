@@ -18,9 +18,8 @@ mod combinatorics;
 // This is pub only for benchmarking purpose.
 pub mod cum_transform;
 mod gadget;
-mod pdt;
 pub(crate) mod multiprogress;
-pub(crate) mod progress;
+mod pdt;
 mod rpm_sim;
 mod utils;
 
