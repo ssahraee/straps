@@ -15,10 +15,10 @@ jobs:
             os: ubuntu-20.04
           - vers: auto64
             os: ubuntu-20.04
-          - vers: arm64
-            os: macos-10.15
-          - vers: auto64
-            os: macos-10.15
+#          - vers: arm64
+#            os: macos-10.15
+#          - vers: auto64
+#            os: macos-10.15
           - vers: auto64
             os: windows-2019
 
@@ -37,31 +37,16 @@ jobs:
         with:
           python-version: "3.6"
 
+      - name: Install boost on windows
+        if: runner.os == 'Windows'
+        run: choco install boost-msvc-14.2
+
       - name: Set up QEMU
         if: runner.os == 'Linux'
         uses: docker/setup-qemu-action@v1
         with:
           platforms: all
 
-      - name: Install boost ${{ matrix.vers }}
-        if: runner.os == 'Windows'
-        uses: MarkusJx/install-boost@v1.0.1
-        id: install-boost-windows
-        with:
-            # REQUIRED: Specify the required boost version
-            # A list of supported versions can be found here: 
-            # https://github.com/actions/boost-versions/blob/main/versions-manifest.json
-            boost_version: 1.73.0
-
-      - name: Install boost ${{ matrix.vers }}
-        if: runner.os == 'Macos'
-        uses: MarkusJx/install-boost@v1.0.1
-        id: install-boost-macos
-        with:
-            # REQUIRED: Specify the required boost version
-            # A list of supported versions can be found here: 
-            # https://github.com/actions/boost-versions/blob/main/versions-manifest.json
-            boost_version: 1.73.0
 
       - name: wheels Linux ${{ matrix.vers }}
         if: runner.os == 'Linux'
