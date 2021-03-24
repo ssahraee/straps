@@ -283,9 +283,9 @@ impl PyLeakageDistribution {
         py: Python<'p>,
         inputs: Vec<String>,
         outputs: Vec<String>,
-        ldt: &PyPDT,
+        pdt: &PyPDT,
     ) -> Self {
-        py.allow_threads(|| Self::from_inner(self.write().apply_op(inputs, outputs, &ldt.inner)))
+        py.allow_threads(|| Self::from_inner(self.write().apply_op(inputs, outputs, &pdt.inner)))
     }
     fn to_vec(&self) -> Vec<f64> {
         self.read().get_distr().to_vec()

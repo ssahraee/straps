@@ -20,8 +20,8 @@
 import numpy as np
 import tqdm
 
-from .sh_ldt import ShLd
-from . import ldt_sampling
+from .sh_pdt import ShPd
+from . import pdt_sampling
 from . import utils
 
 ## Generic circuit builders
@@ -30,7 +30,7 @@ from . import utils
 def eval_aes_sbox(p, pdts, ref=True, d=2, ref_name="optref"):
     """AES S-box in GF(256). See paper for structure."""
     # Create the Shared PD with one output sharing
-    x = ShLd(["out"], d)
+    x = ShPd(["out"], d)
     # We build the circuit from the output: we start from the output sharing,
     # create the gadget that generates it, then work backwards until we reach
     # the intput.
@@ -71,7 +71,7 @@ def eval_aes_sbox(p, pdts, ref=True, d=2, ref_name="optref"):
 
 
 def eval_x_cube(p, pdts, ref=True, d=2, ref_name="optref"):
-    x = ShLd(["out"], d)
+    x = ShPd(["out"], d)
     x.op("out", ["t0", "t1"], pdts["ISW"])
     if ref:
         x.op("t0", ["t0"], pdts[ref_name])
@@ -82,7 +82,7 @@ def eval_x_cube(p, pdts, ref=True, d=2, ref_name="optref"):
 
 def eval_mul_both(p, pdts, d=2):
     """Probability that either of the two full input sharings are required for simulation."""
-    x = ShLd(["out"], d)
+    x = ShPd(["out"], d)
     x.op("out", ["t0", "t1"], pdts["ISW"])
     return sum(x.distr()[i * 2 ** d + 2 ** d - 1] for i in range(2 ** d)) + np.sum(
         x.distr()[-(2 ** d) : -1]
@@ -90,7 +90,7 @@ def eval_mul_both(p, pdts, d=2):
 
 
 def eval_n_sharings(p, pdts, d=2, circ_name=None, n_inputs=1, sec_input=0):
-    x = ShLd(["out"], d)
+    x = ShPd(["out"], d)
     x.op("out", ["t{}".format(i) for i in range(n_inputs)], pdts[circ_name])
     return x.security("t{}".format(sec_input))
 
@@ -172,12 +172,12 @@ specialized_circuits = {
 }
 
 
-@utils.ldt_cache.cache
+@utils.pdt_cache.cache
 def eval_circ_all_p(circ_name, k, e, d, ps, n_s_max, suff_thresh, use_copy, cum_tr):
     """Get the security level for a circuit for multiple p values."""
     _, f, kwargs = specialized_circuits[circ_name]
     gpdts = {
-        circ: ldt_sampling.gpdt(circ, d, k, e, n_s_max, suff_thresh, use_copy, cum_tr)
+        circ: pdt_sampling.gpdt(circ, d, k, e, n_s_max, suff_thresh, use_copy, cum_tr)
         for circ in base_circuits[f][1](**kwargs)
     }
     print(

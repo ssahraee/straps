@@ -15,18 +15,18 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from ._straps_ext import PyLeakageDistribution
+from ._straps_ext import PyProbeDistribution
 
 
-class LeakageDistribution:
-    """Proxy adapter for PyLeakageDistribution.
+class ProbeDistribution:
+    """Proxy adapter for PyProbeDistribution.
 
     The main work is wire name adaptation: we support arbitrary types as wire
-    names, while PyLeakageDistribution only supports strings.
+    names, while PyProbeDistribution only supports strings.
     """
 
     def __init__(self, wires, distr=None):
-        self.inner = PyLeakageDistribution(self.w2ss(wires))
+        self.inner = PyProbeDistribution(self.w2ss(wires))
 
     @staticmethod
     def w2s(wire):
@@ -36,8 +36,8 @@ class LeakageDistribution:
     def w2ss(wires):
         return ["{}_{}".format(*w) for w in wires]
 
-    def apply_op(self, inputs, outputs, ldt):
-        self.inner = self.inner.apply_op(self.w2ss(inputs), self.w2ss(outputs), ldt)
+    def apply_op(self, inputs, outputs, pdt):
+        self.inner = self.inner.apply_op(self.w2ss(inputs), self.w2ss(outputs), pdt)
         return self
 
     def leak_wire(self, var, p):

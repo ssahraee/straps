@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.colors
 
-from . import ldt_sampling
+from . import pdt_sampling
 
 plots = [
     ("ISW", 2),
@@ -38,7 +38,7 @@ plots = [
     ("optref", 4),
 ]
 for gname, d in plots:
-    f = ldt_sampling.gpdt(
+    f = pdt_sampling.gpdt(
         gname, d=d, kind="ub", err=1e-6, n_s_max=10 ** 5, suff_thresh=1000
     ).to_array()
     res = np.argmax(f != 0.0, axis=0)

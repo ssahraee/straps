@@ -17,18 +17,18 @@
 
 import itertools as it
 
-from .leak_distr import LeakageDistribution
+from .probe_distr import ProbeDistribution
 
 
-class ShLd(LeakageDistribution):
-    """Leakage distribution of multiple sharings.
+class ShPd(ProbeDistribution):
+    """Probe distribution of multiple sharings.
 
     All the operations are performed over sharings.
     """
 
     def __init__(self, sharings, n_shares, distr=None):
         self.n_shares = n_shares
-        super(ShLd, self).__init__(list(it.product(sharings, range(n_shares))), distr)
+        super(ShPd, self).__init__(list(it.product(sharings, range(n_shares))), distr)
 
     def op(self, dest, srcs, pdt):
         return self.apply_op(

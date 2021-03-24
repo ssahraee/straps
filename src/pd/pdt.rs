@@ -97,11 +97,11 @@ impl<W: Clone + Eq + Hash> LeakageDistribution<W> {
         &mut self,
         inputs: Vec<W>,
         outputs: Vec<W>,
-        ldt: &ndarray::Array2<f64>,
+        pdt: &ndarray::Array2<f64>,
     ) -> Self {
         let in_chunk = 1 << inputs.len();
         let out_chunk = 1 << outputs.len();
-        assert_eq!(ldt.shape(), &[in_chunk, out_chunk]);
+        assert_eq!(pdt.shape(), &[in_chunk, out_chunk]);
         for in_ in inputs.iter() {
             if !outputs.contains(in_) {
                 assert!(!self.wires.contains(in_));
@@ -113,9 +113,9 @@ impl<W: Clone + Eq + Hash> LeakageDistribution<W> {
         for (i, out) in outputs.iter().enumerate() {
             self.swap(self.wire2idx[out], i as u32);
         }
-        // Now multiply the distribution by I_{2^(n-len(outputs)) \otimes ldt.
+        // Now multiply the distribution by I_{2^(n-len(outputs)) \otimes pdt.
         // This is equivalent to multiplying all subsets of size 2^len(outputs)
-        // of the distributions by ldt.
+        // of the distributions by pdt.
         let new_n = self.n + inputs.len() as u32 - outputs.len() as u32;
         let mut new_distr = ndarray::Array1::zeros(1 << new_n);
         for chunk in 0..(1 << self.n - outputs.len() as u32) {
@@ -124,7 +124,7 @@ impl<W: Clone + Eq + Hash> LeakageDistribution<W> {
             new_distr
                 .slice_mut(ndarray::s![i_new..i_new + in_chunk])
                 .assign(
-                    &ldt.view()
+                    &pdt.view()
                         .dot(&self.distr.slice(ndarray::s![i_old..i_old + out_chunk])),
                 );
         }

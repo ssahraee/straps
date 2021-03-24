@@ -59,4 +59,4 @@ cache_dir = os.getenv("STRAPS_CACHE_DIR")
 if cache_dir:
     os.makedirs(cache_dir, exist_ok=True)
 # If cache_dir is None, Memory acts as a transparent wrapper.
-ldt_cache = Memory(cache_dir, verbose=0)
+pdt_cache = Memory(cache_dir, verbose=0)
