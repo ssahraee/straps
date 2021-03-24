@@ -18,6 +18,15 @@
 #include <boost/exception/diagnostic_information.hpp>
 #include <iostream>
 
+namespace boost
+{
+#ifdef BOOST_NO_EXCEPTIONS
+void throw_exception( std::exception const & e ){
+    throw e;
+};
+#endif
+}// namespace boost
+
 extern "C" int ibeta_inv(double a, double b, double p, double *res, double *py) {
     try {
     *res = boost::math::ibeta_inv(a, b, p, py);
