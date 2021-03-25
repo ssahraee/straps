@@ -14,9 +14,16 @@ Dependencies:
 * `python >= 3.6`
 * `pip`
 
+(On Ubuntu: `apt install python3 python3-pip`. On Windows, install from <https://python.org>.)
+
+
 Install command
 ```
 pip install straps
+```
+or (install for local user only):
+```
+pip install --user straps
 ```
 
 We do not currently build for Mac OS (working CI configuration contribution is
