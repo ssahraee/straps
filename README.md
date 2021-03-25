@@ -142,7 +142,7 @@ If you want to build STRAPS yourself, you will need the following for all platfo
 
 Then, run
 ```
-python setup.py devlop
+python setup.py develop
 ```
 to install STRAPS in development mode.
 For Windows, you need to the the environment variable
