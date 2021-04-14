@@ -57,12 +57,12 @@ to large runtime reductions, even on a single run.
 ### Custom composition
 
 ```python
-from straps import eval_circs, sh_ldt, ldt_sampling, secfig
+from straps import eval_circs, sh_pdt, pdt_sampling, secfig
 
 def eval_x_cube(p, pdts, d):
     """Composition to compute ISW-mul(x, x**2) (without refreshing)."""
     # Create the Shared PD with one output sharing
-    x = sh_ldt.ShLd(['out'], d)
+    x = sh_pdt.ShPd(['out'], d)
     # We build the circuit from the output: we start from the output sharing,
     # create the gadget that generates it, then work backwards until we reach
     # the intput.
@@ -79,9 +79,10 @@ e = 1e-6 # statistical confidence level
 d = 3 # number of shares
 n_s_max = 10**5 # N_max
 suff_thresh = 100 # N_t
+p = 1e-2 # parameter of the random probing model
 pdts = {
-    circ: ldt_sampling.gpdt(circ, d, k, e, n_s_max, suff_thresh, True, False).instantiate(p)
-    for circ in ["ISW", "square]
+    circ: pdt_sampling.gpdt(circ, d, k, e, n_s_max, suff_thresh, True, False).instantiate(p)
+    for circ in ["ISW", "square"]
     }
 # Get the security level:
 security_level = eval_x_cube(p, pdts, d)
@@ -97,7 +98,10 @@ import numpy as np
 from matplotlib import pyplot as plt
 ds = [1, 2, 3] # number of shares
 ps = np.logspace(-4, 0, 50) # parameter of the random probing model
-secfig.plot_fig(**secfig.data_fig("custom_cube", ds, err, ps, n_s_max, suff_thresh))
+e = 1e-6 # statistical confidence level
+n_s_max = 10**5 # N_max
+suff_thresh = 100 # N_t
+secfig.plot_fig(**secfig.data_fig("custom_cube", ds, e, ps, n_s_max, suff_thresh))
 plt.show()
 ```
 
@@ -109,10 +113,52 @@ Your can also design your own gadget.
 ```python
 from straps import circuit_model
 
+# Define the gadget.
 def custom_gadget(d):
-    """Useless custom gadget with d shares."""
+    """Custom gadget with d shares."""
     if d != 2:
-        raise ValueError("This gadget works only with 2 shares...")
+        raise ValueError("This gadget works only with 2 shares.")
+    c = circuit_model.Circuit(d)
+    # two input sharings: (in00, in01) and (in10, in11)
+    in00 = c.var("in00", kind="input", port=(0, 0))
+    in01 = c.var("in01", kind="input", port=(0, 1))
+    in10 = c.var("in10", kind="input", port=(1, 0))
+    in11 = c.var("in11", kind="input", port=(1, 1))
+    # one output sharing (out0, out1)
+    out0 = c.var("out0", kind="output", port=(0, 0))
+    out1 = c.var("out1", kind="output", port=(0, 1))
+    # a fresh random
+    r = c.var("r", kind="random")
+    # intermediate variables
+    w = c.var("w")
+    x = c.var("x")
+    y = c.var("y")
+    # circuit gates
+    c.l_sum(w, (in00, r)) # XOR gate: x = in00 XOR r
+    c.l_sum(x, (w, in01))
+    c.l_sum(y, (in10, in11)) # NB: leaks at first-order.
+    c.l_prod(out0, (y, x)) # AND gate: out0 = x AND y
+    c.l_prod(out1, (y, r))
+    return c
+
+# Integrate the gadget in the list of available gadgets:
+from straps import simple_circuits
+simple_circuits.all_circs["my_custom_gadget"] = custom_gadget
+
+# Then you can use "my_custom_gadget" in any custom composition (see Custom
+# composition section). E.g.
+from straps import sh_pdt, eval_circs
+def eval_custom_gadget(p, pdts, d, sec_input="in0"):
+    x = sh_pdt.ShPd(['out'], d)
+    x.op('out', ['in0', 'in1'], pdts['my_custom_gadget'])
+    return x.security(sec_input)
+
+eval_circs.base_circuits["custom_gadget"] = (
+        eval_custom_gadget, lambda **kwargs: ['my_custom_gadget']
+)
+eval_circs.specialized_circuits["custom_gadget_in0"] = ("Custom Gadget in 0", "custom_gadget", {'sec_input': 'in0'})
+eval_circs.specialized_circuits["custom_gadget_in1"] = ("Custom Gadget in 1", "custom_gadget", {'sec_input': 'in1'})
+# You can then evaluate the security with straps.secfig (see Custom composition section).
 ```
 
 ## Build
