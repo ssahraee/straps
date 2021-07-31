@@ -2,7 +2,7 @@
 
 *Statistical Testing of RAndom Probing Security*
 
-This tool is described in the [paper](https://epring.iacr.org/2021/TODO)
+This tool is described in the [paper](https://epring.iacr.org/2021/880)
 *Towards Tight Random Probing Security*.
 
 ## Install
