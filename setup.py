@@ -36,7 +36,7 @@ setup(
         "Programming Language :: Python :: 3",
     ],
     rust_extensions=[
-		RustExtension("straps._straps_ext", binding=Binding.PyO3, features=["pyo3/abi3"], py_limited_api=True,debug=False)
+		RustExtension("straps._straps_ext", binding=Binding.PyO3, debug=False)
 		],
     packages=["straps"],
     # rust extensions are not zip safe, just like C-extensions.
