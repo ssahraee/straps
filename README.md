@@ -29,6 +29,16 @@ pip install --user straps
 We do not currently build for Mac OS (working CI configuration contribution is
 welcome), but you can build it for yourself (see below).
 
+If the installation fails after "Building wheel for straps [...]", it is
+probably due to the use of an old version of pip. If updating it is not
+possible, you may also do it in python virtual environment:
+```
+python3 -m venv ve_straps
+source ve_straps/bin/activate
+python3 -m pip install -u pip
+python3 -m pip install straps
+```
+
 ## Usage
 
 ### Simple demo
