@@ -12,8 +12,8 @@ crate-type = ["cdylib"]
 fxhash = "0.2"
 bit-set = "0.5"
 log = "0.4"
-ndarray = {version = "0.14", features=["rayon"]}
-rayon = "1.3"
+ndarray = { version = "0.16", features = ["rayon"] }
+rayon = "1.10"
 rand = "0.7"
 statrs = "0.12"
 itertools = "0.10"
@@ -22,12 +22,12 @@ ordered-float = "2.0"
 libc = "0.2"
 indicatif = "0.15"
 env_logger = "0.6"
-pyo3 = {version="0.13",features=["extension-module"]}
-numpy = "0.13"
+pyo3 = { version = "0.22", features = ["extension-module"] }
+numpy = "0.22"
 hytra = "0.1.2"
 crossbeam-utils = "0.8.3"
 #firestorm = { version="0.4", features=["enable_system_time"] }
-firestorm = { version="0.4" }
+firestorm = { version = "0.4" }
 
 [build-dependencies]
 cc = "1.0"

@@ -1,5 +1,5 @@
 // STRAPS - Statistical Testing of RAndom Probing Security
-// Copyright (C) 2021 UCLouvain
+// Copyright (C) 2021 - 2024 UCLouvain, Gaëtan Cassiers
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use numpy::{PyArray2, PyArray3, ToPyArray};
+use numpy::{PyArray2, PyArray3, PyArrayMethods, ToPyArray};
 use pyo3::prelude::*;
 use std::convert::TryInto;
 
@@ -52,7 +52,7 @@ py_type_wrapper!(
 );
 
 #[pymodule]
-fn _straps_ext(_py: Python, m: &PyModule) -> PyResult<()> {
+fn _straps_ext(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyCompGraph>()?;
     m.add_class::<PyCntSim>()?;
     m.add_class::<PyCntSimSt>()?;
@@ -211,7 +211,7 @@ impl PyCntSim {
 #[pymethods]
 impl PyCntSimSt {
     #[new]
-    fn new(counts: &PyArray3<u64>, exhaustive: &PyArray2<bool>) -> Self {
+    fn new(counts: &Bound<'_, PyArray3<u64>>, exhaustive: &Bound<'_, PyArray2<bool>>) -> Self {
         pd::CntSimSt {
             cnt: counts.to_owned_array(),
             exhaustive: exhaustive.to_owned_array(),
@@ -227,14 +227,14 @@ impl PyCntSimSt {
     fn lb<'p>(&self, py: Python<'p>, err: f64, cum_tr: bool) -> PyGPdt {
         py.allow_threads(|| self.inner.lb(err, cum_tr).into())
     }
-    fn to_array<'p>(&self, py: Python<'p>) -> &'p PyArray3<u64> {
-        PyArray3::from_array(py, &self.inner.cnt)
+    fn to_array<'p>(&self, py: Python<'p>) -> Bound<'p, PyArray3<u64>> {
+        PyArray3::from_array_bound(py, &self.inner.cnt)
     }
-    fn exhaustive<'p>(&self, py: Python<'p>) -> &'p PyArray2<bool> {
-        PyArray2::from_array(py, &self.inner.exhaustive)
+    fn exhaustive<'p>(&self, py: Python<'p>) -> Bound<'p, PyArray2<bool>> {
+        PyArray2::from_array_bound(py, &self.inner.exhaustive)
     }
-    fn n_samples<'p>(&self, py: Python<'p>) -> &'p PyArray2<u64> {
-        PyArray2::from_array(py, &self.inner.cnt.sum_axis(pd::INPUT_AXIS))
+    fn n_samples<'p>(&self, py: Python<'p>) -> Bound<'p, PyArray2<u64>> {
+        PyArray2::from_array_bound(py, &self.inner.cnt.sum_axis(pd::INPUT_AXIS))
     }
 }
 
@@ -303,8 +303,8 @@ impl PyProbeDistribution {
 
 #[pymethods]
 impl PyPDT {
-    fn to_array<'p>(&self, py: Python<'p>) -> &'p PyArray2<f64> {
-        self.inner.to_pyarray(py)
+    fn to_array<'p>(&self, py: Python<'p>) -> Bound<'p, PyArray2<f64>> {
+        self.inner.to_pyarray_bound(py)
     }
 }
 
@@ -313,8 +313,8 @@ impl PyGPdt {
     fn instantiate<'p>(&self, py: Python<'p>, p: f64) -> PyPDT {
         py.allow_threads(|| self.inner.instantiate(p)).into()
     }
-    fn to_array<'p>(&self, py: Python<'p>) -> &'p PyArray3<f64> {
-        self.inner.as_ratios().to_pyarray(py)
+    fn to_array<'p>(&self, py: Python<'p>) -> Bound<'p, PyArray3<f64>> {
+        self.inner.as_ratios().to_pyarray_bound(py)
     }
 }
 
