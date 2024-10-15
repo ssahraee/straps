@@ -11,14 +11,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-#          - vers: aarch64
-#            os: ubuntu-20.04
+          #          - vers: aarch64
+          #            os: ubuntu-20.04
           - vers: auto64
             os: ubuntu-20.04
-#          - vers: arm64
-#            os: macos-10.15
-#          - vers: auto64
-#            os: macos-10.15
+          #          - vers: arm64
+          #            os: macos-10.15
+          #          - vers: auto64
+          #            os: macos-10.15
           - vers: auto64
             os: windows-2019
 
@@ -44,7 +44,7 @@ jobs:
           platforms: all
 
       - name: wheels ${{ matrix.os }} ${{ matrix.vers }}
-        uses: pypa/cibuildwheel@v2.4.0
+        uses: pypa/cibuildwheel@v2.21.3
         env:
           CIBW_ENVIRONMENT_WINDOWS: CXXFLAGS='-I C:/Local/boost_1_74_0'
           CIBW_BEFORE_ALL_LINUX: "curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y && yum install -y boost-devel"
