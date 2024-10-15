@@ -11,7 +11,7 @@ STRAPS is distributed as a python package (with compiled native code in it).
 
 Dependencies:
 
-* `python >= 3.6`
+* `python >= 3.10` (for older python, see version 0.1.2)
 * `pip`
 
 (On Ubuntu: `apt install python3 python3-pip`. On Windows, install from <https://python.org>.)

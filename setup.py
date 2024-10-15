@@ -41,6 +41,6 @@ setup(
     packages=["straps"],
     # rust extensions are not zip safe, just like C-extensions.
     zip_safe=False,
-    python_requires=">=3.6",
+    python_requires=">=3.10",
     install_requires=["joblib~=0.17", "matplotlib~=3.1", "numpy~=1.16", "tqdm~=4.51"],
 )
