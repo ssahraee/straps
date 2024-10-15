@@ -37,7 +37,7 @@ jobs:
 
       - name: Install boost on windows
         if: runner.os == 'Windows'
-        run: choco install boost-msvc-14.2
+        run: choco install boost-msvc-14.2 --version=1.74.0
 
       - name: Set up QEMU
         if: runner.os == 'Linux'
