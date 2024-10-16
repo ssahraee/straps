@@ -22,7 +22,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="straps",
-    version="0.1.3",
+    version="0.1.4",
     author="Gaëtan Cassiers",
     author_email="gaetan.cassiers@uclouvain.be",
     description="Statistical Testing of RAndom Probing Security",
@@ -42,5 +42,10 @@ setup(
     # rust extensions are not zip safe, just like C-extensions.
     zip_safe=False,
     python_requires=">=3.10",
-    install_requires=["joblib~=0.17", "matplotlib~=3.1", "numpy~=1.16", "tqdm~=4.51"],
+    install_requires=[
+        "joblib~=1.4.2",
+        "matplotlib~=3.8.4",
+        "numpy~=1.26.4",
+        "tqdm~=4.66.1",
+    ],
 )
