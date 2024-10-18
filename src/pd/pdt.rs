@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+use ndarray::s;
 use std::collections::HashMap;
 use std::hash::Hash;
 
@@ -23,17 +24,19 @@ pub struct ProbeDistribution<W: Clone + Eq + Hash> {
     pub wires: Vec<W>,
     // reverse map of `wires`
     wire2idx: HashMap<W, u32>,
-    pub distr: ndarray::Array1<f64>,
+    pub distr: ndarray::Array2<f64>,
 }
 
 impl<W: Clone + Eq + Hash> ProbeDistribution<W> {
     pub fn from_wires(wires: Vec<W>) -> Self {
-        let mut distr = ndarray::Array1::zeros(1 << wires.len());
-        distr[0] = 1.0;
+        let mut distr = ndarray::Array2::zeros((1 << wires.len(), 1));
+        for x in distr.slice_mut(s!(0, 0..)) {
+            *x = 1.0;
+        }
         return Self::from_wires_distr(wires, distr);
     }
 
-    pub fn from_wires_distr(wires: Vec<W>, distr: impl Into<ndarray::Array1<f64>>) -> Self {
+    pub fn from_wires_distr(wires: Vec<W>, distr: impl Into<ndarray::Array2<f64>>) -> Self {
         let n = wires.len() as u32;
         let wire2idx = wires
             .iter()
@@ -85,7 +88,9 @@ impl<W: Clone + Eq + Hash> ProbeDistribution<W> {
                     let base_idx = x + y + z;
                     let idx0 = base_idx + (1 << i);
                     let idx1 = base_idx + (1 << j);
-                    self.distr.swap(idx0, idx1);
+                    for i in 0..self.distr.shape()[1] {
+                        self.distr.swap((idx0, i), (idx1, i));
+                    }
                 }
                 y += 1 << (i + 1)
             }
@@ -117,15 +122,15 @@ impl<W: Clone + Eq + Hash> ProbeDistribution<W> {
         // This is equivalent to multiplying all subsets of size 2^len(outputs)
         // of the distributions by pdt.
         let new_n = self.n + inputs.len() as u32 - outputs.len() as u32;
-        let mut new_distr = ndarray::Array1::zeros(1 << new_n);
+        let mut new_distr = ndarray::Array2::zeros((1 << new_n, self.distr.shape()[1]));
         for chunk in 0..(1 << self.n - outputs.len() as u32) {
             let i_old = chunk * out_chunk;
             let i_new = chunk * in_chunk;
             new_distr
-                .slice_mut(ndarray::s![i_new..i_new + in_chunk])
+                .slice_mut(ndarray::s![i_new..i_new + in_chunk, ..])
                 .assign(
                     &pdt.view()
-                        .dot(&self.distr.slice(ndarray::s![i_old..i_old + out_chunk])),
+                        .dot(&self.distr.slice(s![i_old..i_old + out_chunk, ..])),
                 );
         }
         let new_wires = inputs
@@ -164,11 +169,29 @@ impl<W: Clone + Eq + Hash> ProbeDistribution<W> {
         )
     }
 
-    pub fn get_distr(&self) -> &ndarray::Array1<f64> {
+    pub fn get_distr(&self) -> &ndarray::Array2<f64> {
         &self.distr
     }
 
     pub fn wire_idx(&self, wire: &W) -> u32 {
         self.wire2idx[&wire]
+    }
+    pub fn sort_wires(&mut self, wires: &[W]) {
+        let w2idx = wires
+            .iter()
+            .enumerate()
+            .map(|(i, w)| (w, i as u32))
+            .collect::<HashMap<_, _>>();
+        for i in 0..self.n {
+            loop {
+                let new_idx = w2idx[&self.wires[i as usize]];
+                assert!(new_idx >= i);
+                if new_idx == i {
+                    break;
+                } else {
+                    self.swap(i, new_idx);
+                }
+            }
+        }
     }
 }

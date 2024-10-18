@@ -87,9 +87,9 @@ impl PyCompGraph {
         n_output_ports: usize,
     ) -> PyResult<PyCompGraph> {
         let vars = vecs2graph(vars, in_ports, out_ports)?;
-        let comp_graph = circuit::new_sl_sc(vars, n_shares, n_input_ports, n_output_ports)
-            .map_err(|e| SErr(e))?;
-        return Ok(comp_graph.into());
+        let comp_graph =
+            circuit::new_sl_sc(vars, n_shares, n_input_ports, n_output_ports).map_err(SErr)?;
+        Ok(comp_graph.into())
     }
     fn sim_set(&self, probes: Vec<u32>) -> Vec<u32> {
         circuit::sim_set(&self.inner, probes)
@@ -174,7 +174,7 @@ impl PySampleRes {
 }
 #[pymethods]
 impl PyCntSim {
-    fn run_sampling<'p>(&self, py: Python<'p>, n_s_max: u32, suff_thresh: u32) -> PyCntSimSt {
+    fn run_sampling(&self, py: Python, n_s_max: u32, suff_thresh: u32) -> PyCntSimSt {
         py.allow_threads(|| {
             let firestorm_dir = std::env::var("STRAPS_FIRESTORM_DIR");
             if firestorm_dir.is_ok() {
@@ -187,9 +187,9 @@ impl PyCntSim {
             res
         })
     }
-    fn probe_output<'p>(
+    fn probe_output(
         &self,
-        py: Python<'p>,
+        py: Python,
         n_s_max: u32,
         suff_thresh: u32,
         output_id: usize,
@@ -218,13 +218,13 @@ impl PyCntSimSt {
         }
         .into()
     }
-    fn estimate<'p>(&self, py: Python<'p>) -> PyGPdt {
+    fn estimate(&self, py: Python) -> PyGPdt {
         py.allow_threads(|| self.inner.estimate().into())
     }
-    fn ub<'p>(&self, py: Python<'p>, err: f64, cum_tr: bool) -> PyGPdt {
+    fn ub(&self, py: Python, err: f64, cum_tr: bool) -> PyGPdt {
         py.allow_threads(|| self.inner.ub(err, cum_tr).into())
     }
-    fn lb<'p>(&self, py: Python<'p>, err: f64, cum_tr: bool) -> PyGPdt {
+    fn lb(&self, py: Python, err: f64, cum_tr: bool) -> PyGPdt {
         py.allow_threads(|| self.inner.lb(err, cum_tr).into())
     }
     fn to_array<'p>(&self, py: Python<'p>) -> Bound<'p, PyArray3<u64>> {
@@ -253,51 +253,41 @@ impl PyProbeDistribution {
 #[pymethods]
 impl PyProbeDistribution {
     #[new]
-    fn new(wires: Vec<String>) -> Self {
-        Self::from_inner(pd::ProbeDistribution::from_wires(wires))
+    fn new(wires: Vec<String>, distr: &Bound<'_, PyArray2<f64>>) -> Self {
+        Self::from_inner(pd::ProbeDistribution::from_wires_distr(
+            wires,
+            distr.to_owned_array(),
+        ))
     }
-    fn leak_wire<'p>(&mut self, py: Python<'p>, var: String, p: f64) -> Self {
+    fn leak_wire(&mut self, py: Python, var: String, p: f64) -> Self {
         py.allow_threads(|| Self::from_inner(self.write().leak_wire(var, p)))
     }
-    fn bin_op<'p>(
-        &mut self,
-        py: Python<'p>,
-        dest: String,
-        src1: String,
-        src2: String,
-        p: f64,
-    ) -> Self {
+    fn bin_op(&mut self, py: Python, dest: String, src1: String, src2: String, p: f64) -> Self {
         py.allow_threads(|| Self::from_inner(self.write().bin_op(dest, src1, src2, p)))
     }
-    fn split_wire<'p>(
-        &mut self,
-        py: Python<'p>,
-        src: String,
-        dest1: String,
-        dest2: String,
-    ) -> Self {
+    fn split_wire(&mut self, py: Python, src: String, dest1: String, dest2: String) -> Self {
         py.allow_threads(|| Self::from_inner(self.write().split_wire(src, dest1, dest2)))
     }
-    fn apply_op<'p>(
+    fn apply_op(
         &mut self,
-        py: Python<'p>,
+        py: Python,
         inputs: Vec<String>,
         outputs: Vec<String>,
         pdt: &PyPDT,
     ) -> Self {
         py.allow_threads(|| Self::from_inner(self.write().apply_op(inputs, outputs, &pdt.inner)))
     }
-    fn to_vec(&self) -> Vec<f64> {
-        self.read().get_distr().to_vec()
-    }
     fn wires(&self) -> Vec<String> {
         self.read().wires.clone()
     }
-    fn distr(&self) -> Vec<f64> {
-        self.read().distr.as_slice().unwrap().to_owned()
+    fn distr<'p>(&self, py: Python<'p>) -> Bound<'p, PyArray2<f64>> {
+        self.read().distr.to_pyarray_bound(py)
     }
     fn wire_idx(&self, wire: String) -> u32 {
         self.read().wire_idx(&wire)
+    }
+    fn sort_wires(&mut self, py: Python, wires: Vec<String>) {
+        py.allow_threads(|| self.write().sort_wires(&wires))
     }
 }
 
@@ -306,11 +296,15 @@ impl PyPDT {
     fn to_array<'p>(&self, py: Python<'p>) -> Bound<'p, PyArray2<f64>> {
         self.inner.to_pyarray_bound(py)
     }
+    #[staticmethod]
+    fn from_array(array: &Bound<'_, PyArray2<f64>>) -> Self {
+        array.to_owned_array().into()
+    }
 }
 
 #[pymethods]
 impl PyGPdt {
-    fn instantiate<'p>(&self, py: Python<'p>, p: f64) -> PyPDT {
+    fn instantiate(&self, py: Python, p: f64) -> PyPDT {
         py.allow_threads(|| self.inner.instantiate(p)).into()
     }
     fn to_array<'p>(&self, py: Python<'p>) -> Bound<'p, PyArray3<f64>> {
@@ -349,7 +343,7 @@ fn vecs2graph(
                     }
                 },
                 output_port: out_port,
-                name: name,
+                name,
             })
         })
         .collect()
