@@ -1,3 +1,4 @@
+
 # STRAPS - Statistical Testing of RAndom Probing Security
 # Copyright (C) 2021 UCLouvain
 #
@@ -19,7 +20,7 @@
 
 import numpy as np
 from matplotlib import pyplot as plt
-
+import os
 from . import eval_circs
 
 light = False
