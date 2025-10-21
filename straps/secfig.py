@@ -171,7 +171,30 @@ def main():
     suff_thresh = args.nt
 
     plot_fig(**data_fig(fn, ds, err, p, n_s_max, suff_thresh))
-    plt.show()
+
+    #plt.show()
+    #Replace plt.show() with a saved image (so that we can see it after execution on server)
+    results_dir = "results"
+    os.makedirs(results_dir, exist_ok=True) 
+    outfile = os.path.join(results_dir, f"{fn}_d{'-'.join(map(str, ds))}.png")
+    plt.savefig(outfile, dpi=300, bbox_inches="tight")
+    print(f"Plot saved to {outfile}")
+
+
+    data = data_fig(fn, ds, err, p, n_s_max, suff_thresh)
+
+    data_file = os.path.join(results_dir, f"{fn}_data.txt")
+    with open(data_file, "w") as f:
+        f.write(f"circuit: {fn}\n")
+        f.write(f"error: {err}\n")
+        f.write(f"n_s_max: {n_s_max}, suff_thresh: {suff_thresh}\n\n")
+        for i, d in enumerate(data['ds']):
+            f.write(f"d = {d}\n")
+            f.write("p\tlower_bound\tupper_bound\n")
+            for pi, lb, ub in zip(data['p'], data['lbs'][i], data['ubs'][i]):
+                f.write(f"{pi:.6e}\t{lb:.6e}\t{ub:.6e}\n")
+            f.write("\n")
+    print(f"Data saved to {data_file}")
 
 
 if __name__ == "__main__":
